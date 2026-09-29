@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyper Notepad</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <!-- Quill.js for Rich Text Editing -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-sans transition-colors duration-300 dark:bg-gray-900 dark:text-gray-100">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md p-4 dark:bg-gray-800">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-blue-600 dark:text-blue-400">Hyper Notepad</a>
+            <div id="nav-links">
+                <!-- Links will be injected here based on auth state -->
+                <a href="/login.html"
+                    class="text-gray-600 hover:text-blue-500 mr-4 dark:text-gray-300 dark:hover:text-blue-400">Login</a>
+                <a href="/register.html" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Get
+                    Started</a>
+            </div>
+            <!-- Dark Mode Toggle (Mobile/Guest) -->
+            <button id="theme-toggle"
+                class="ml-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z">
+                    </path>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto mt-8 p-4">
+
+        <!-- Guest/Editor Section -->
+        <div id="editor-wrapper" class="bg-white rounded-lg shadow-lg overflow-hidden dark:bg-gray-800">
+            <div
+                class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
+                <input type="text" id="note-title" placeholder="Untitled Note"
+                    class="text-2xl font-bold bg-transparent border-none focus:ring-0 text-gray-800 dark:text-gray-100 placeholder-gray-400 w-full">
+                <div class="flex items-center space-x-2">
+                    <button id="save-btn"
+                        class="text-sm bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition">Saved</button>
+                    <button id="share-btn"
+                        class="text-sm bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition">Share</button>
+                </div>
+            </div>
+            <div class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                <div class="flex items-center gap-2 text-base">
+                    <button id="visibility-toggle-btn" type="button"
+                        class="text-blue-700 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold">
+                        Public Note
+                    </button>
+                    <span id="visibility-note-hint" class="text-gray-600 dark:text-gray-300 text-sm"></span>
+                </div>
+            </div>
+
+            <!-- Custom Toolbar -->
+            <div id="toolbar"
+                class="flex items-center space-x-1 p-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                <!-- Text Formatting -->
+                <span class="ql-formats">
+                    <select class="ql-header"></select>
+                    <button class="ql-bold"></button>
+                    <button class="ql-italic"></button>
+                    <button class="ql-underline"></button>
+                    <button class="ql-strike"></button>
+                </span>
+
+                <!-- Lists -->
+                <span class="ql-formats border-l border-gray-300 mx-2 pl-2 dark:border-gray-600">
+                    <button class="ql-list" value="ordered"></button>
+                    <button class="ql-list" value="bullet"></button>
+                    <button class="ql-list" value="check"></button>
+                </span>
+
+                <!-- Undo/Redo -->
+                <span class="ql-formats border-l border-gray-300 mx-2 pl-2 dark:border-gray-600 flex items-center">
+                    <button id="undo-btn" class="hover:text-blue-500 px-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                        </svg>
+                    </button>
+                    <button id="redo-btn" class="hover:text-blue-500 px-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6"></path>
+                        </svg>
+                    </button>
+                </span>
+
+                <div class="flex-grow"></div>
+
+                <!-- Info/Stats Button -->
+                <div class="relative">
+                    <button id="info-btn"
+                        class="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </button>
+                    <!-- Stats Popup -->
+                    <div id="stats-popup"
+                        class="hidden absolute right-0 mt-2 w-64 bg-gray-900 text-white text-sm rounded-lg shadow-xl p-4 z-50">
+                        <div class="flex justify-between mb-2">
+                            <span>Words:</span>
+                            <span id="word-count">0</span>
+                        </div>
+                        <div class="flex justify-between mb-2 pb-2 border-b border-gray-700">
+                            <span>Characters:</span>
+                            <span id="char-count">0</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-400">
+                            <span>Created:</span>
+                            <span id="created-at" class="text-right text-gray-300">-</span>
+                            <span>Updated:</span>
+                            <span id="updated-at" class="text-right text-gray-300">-</span>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-gray-700 text-center">
+                            <button id="save-key-btn"
+                                class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-1 px-3 rounded flex items-center justify-center space-x-2 text-xs transition">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z">
+                                    </path>
+                                </svg>
+                                <span>Save note to view Edit Key</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quill Editor Target -->
+            <div id="editor" class="h-[70vh] text-lg bg-white dark:bg-gray-800 dark:text-gray-100 border-none"></div>
+        </div>
+
+        <!-- Reviews Section -->
+        <div id="reviews-container" class="mt-8 bg-white p-6 rounded-lg shadow-lg hidden dark:bg-gray-800">
+            <h2 class="text-2xl font-bold mb-4 dark:text-white">Reviews</h2>
+            <div id="reviews-list" class="space-y-4 mb-6">
+                <!-- Reviews injected here -->
+            </div>
+
+            <div class="border-t pt-4 dark:border-gray-700">
+                <h3 class="text-lg font-bold mb-2 dark:text-white">Leave a Review</h3>
+                <div class="flex items-center space-x-2 mb-2">
+                    <label class="dark:text-gray-300">Rating:</label>
+                    <select id="review-rating"
+                        class="border rounded px-2 py-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="5">5 Stars</option>
+                        <option value="4">4 Stars</option>
+                        <option value="3">3 Stars</option>
+                        <option value="2">2 Stars</option>
+                        <option value="1">1 Star</option>
+                    </select>
+                </div>
+                <textarea id="review-comment"
+                    class="w-full border rounded p-2 mb-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    placeholder="Write your comment..."></textarea>
+                <button id="submit-review-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit
+                    Review</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="language.js"></script>
+    <script src="theme.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

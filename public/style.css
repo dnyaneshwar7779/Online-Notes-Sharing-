@@ -1,0 +1,120 @@
+/* Google Fonts import could go here if not using Tailwind's default */
+
+/* Custom Scrollbar for a premium feel */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Quill Editor Customization */
+.ql-toolbar {
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    border-color: #e5e7eb !important;
+}
+
+.ql-container {
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    border-color: #e5e7eb !important;
+    font-size: 1.1rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#editor-container {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Dark Mode Overrides */
+.dark ::-webkit-scrollbar-track {
+    background: #1f2937;
+    /* gray-800 */
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    /* gray-600 */
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+    /* gray-500 */
+}
+
+.dark .ql-toolbar {
+    background-color: #374151;
+    /* gray-700 */
+    border-color: #4b5563 !important;
+    color: #e5e7eb;
+}
+
+.dark .ql-container {
+    background-color: #1f2937;
+    /* gray-800 */
+    border-color: #4b5563 !important;
+    color: #e5e7eb;
+}
+
+.dark .ql-stroke {
+    stroke: #e5e7eb !important;
+}
+
+.dark .ql-fill {
+    fill: #e5e7eb !important;
+}
+
+.dark .ql-picker {
+    color: #e5e7eb !important;
+}
+
+/* Custom Toolbar Styling */
+#toolbar {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dark #toolbar {
+    border-bottom: 1px solid #374151;
+}
+
+.ql-formats {
+    display: inline-flex;
+    align-items: center;
+}
+
+.ql-formats button {
+    margin-right: 4px;
+}
+
+.ql-formats button:hover {
+    color: #3b82f6 !important;
+    /* blue-500 */
+}
+
+.dark .ql-formats button:hover {
+    color: #60a5fa !important;
+    /* blue-400 */
+}
